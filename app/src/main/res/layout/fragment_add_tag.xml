@@ -1,0 +1,97 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="edu.pdx.telescope.finalproject.ece558.ece558telescope.AddTagFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.5">
+            <TextView
+                android:id="@+id/scanning_tv"
+                android:layout_alignParentStart="true"
+                android:layout_alignBottom="@+id/toggleButton"
+                android:paddingBottom="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/scanning_status"
+                android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+            <ToggleButton
+                android:layout_alignParentTop="true"
+                android:layout_alignParentEnd="true"
+                android:text="ToggleButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/toggleButton" />
+
+            <TextView
+                android:id="@+id/available_tags"
+                android:padding="5dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/available_tags"
+                android:layout_below="@+id/scanning_tv"/>
+
+            <ListView
+                android:layout_below="@+id/available_tags"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_centerInParent="true"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_marginTop="10dp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:text="@string/mac_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:padding="@dimen/appbar_padding_top"
+                android:layout_marginTop="26dp"
+                android:id="@+id/mac_address" />
+
+            <TextView
+                android:text="@string/tag_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/appbar_padding_top"
+                android:layout_below="@+id/mac_address"
+                android:layout_marginTop="26dp"
+                android:id="@+id/textView2" />
+
+            <TextView
+                android:text="@string/tag_group"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textView2"
+                android:padding="@dimen/appbar_padding_top"
+                android:layout_alignEnd="@+id/textView2"
+                android:layout_marginTop="26dp"
+                android:id="@+id/textView3" />
+
+            <Button
+                android:text="@string/add_tag_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/add_tag_button"
+                android:layout_below="@+id/textView3"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
+
+    </LinearLayout>
+
+
+</FrameLayout>
