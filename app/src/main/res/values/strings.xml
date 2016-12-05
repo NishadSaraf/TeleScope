@@ -2,5 +2,5 @@
     <string name="app_name">TeleScope</string>
 
     <!-- User messages -->
-    <string name="no_ble_support">Your device doesn't support Bluetooth Low Energy feature</string>
+    <string name="no_ble_support">Your device does not support Bluetooth Low Energy feature</string>
 </resources>
