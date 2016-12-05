@@ -5,6 +5,8 @@ import android.os.Bundle;
 
 public class TeleLauncher extends AppCompatActivity {
 
+    public static final String TAG= TeleLauncher.class.getSimpleName();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
