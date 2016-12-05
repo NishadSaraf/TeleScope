@@ -3,7 +3,11 @@ package edu.pdx.telescope.finalproject.ece558.ece558telescope;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
@@ -114,6 +118,48 @@ public class TeleLauncher extends AppCompatActivity {
         mBluetoothAdapter.getBluetoothLeScanner().stopScan(mScanCallback);
     }
 
+    private void toggleBuzzer(BluetoothGatt locatingGatt, final boolean isEnable)
+    {
+        BluetoothGattCharacteristic characteristic = locatingGatt
+                .getService(DeviceProfiles.TELESCOPE_SERVICE_UUID)
+                .getCharacteristic(DeviceProfiles.TELESCOPE_CHARACTERISTIC_BUZZER_CONTROL);
+
+        int buzzerValue;
+        if (isEnable)
+            buzzerValue=0x00;
+        else
+            buzzerValue= 0xFF;
+
+        byte[] value = {(byte)buzzerValue};
+        Log.d(TAG, "Writing value of size "+value.length);
+        characteristic.setValue(value);
+        locatingGatt.writeCharacteristic(characteristic);
+    }
+
+    /***
+     * Connects to a particular device
+     * @param device the device to be connected
+     * @return
+     */
+    private boolean connect(final BluetoothDevice device) {
+        if (mBluetoothAdapter == null ) {
+            Log.w(TAG,
+                    "BluetoothAdapter not initialized or unspecified address.");
+            return false;
+        }
+
+        if (device == null) {
+            Log.w(TAG, "Device not found.  Unable to connect.");
+            return false;
+        }
+
+        // We want to directly connect to the device, so we are setting the
+        // autoConnect parameter to false.
+        mConnectedGatt = device.connectGatt(this, false, mGattCallback);
+        Log.d(TAG, "Trying to create a new connection.");
+
+        return true;
+    }
     /*
      * Callback handles results from new devices that appear
      * during a scan. Batch results appear when scan delay
@@ -156,15 +202,68 @@ public class TeleLauncher extends AppCompatActivity {
             Log.w(TAG, "LE Scan Failed: "+errorCode);
         }
 
+        /***
+         * Processes a scan result
+         * @param result
+         */
         private void processResult(ScanResult result) {
+
+            //Getting device from the result
             BluetoothDevice device = result.getDevice();
             Log.i(TAG, "New LE Device: " + device.getName() + " @ " + result.getRssi());
+
             //Add it to the collection
             mDevices.put(device.hashCode(), device);
+
             //Update the overflow menu
             invalidateOptionsMenu();
 
             stopScan();
+        }
+    };
+
+    /*
+     * Callback handles GATT client events, such as results from
+     * reading or writing a characteristic value on the server.
+     */
+    private BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+
+        /***
+         * Whenever there there is a change in connection status,
+         * i.e when a device gets connected/disconnected
+         * @param gatt
+         * @param status
+         * @param newState
+         */
+        @Override
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            super.onConnectionStateChange(gatt, status, newState);
+            Log.d(TAG, "onConnectionStateChange "
+                    +DeviceProfiles.getStatusDescription(status)+" "
+                    +DeviceProfiles.getStateDescription(newState));
+
+            if (newState == BluetoothProfile.STATE_CONNECTED) {
+                gatt.discoverServices();
+            }
+        }
+
+        @Override
+        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+            super.onServicesDiscovered(gatt, status);
+            Log.d(TAG, "onServicesDiscovered:");
+
+            for (BluetoothGattService service : gatt.getServices()) {
+                Log.d(TAG, "Service: "+service.getUuid());
+
+                if (DeviceProfiles.TELESCOPE_SERVICE_UUID.equals(service.getUuid())) {
+
+                    List<BluetoothGattCharacteristic> charas = service.getCharacteristics();
+                    for (BluetoothGattCharacteristic chara: charas)
+                    {
+                        Log.d(TAG, "Chara: "+chara.getUuid());
+                    }
+                }
+            }
         }
     };
 }
