@@ -15,15 +15,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     {
         super(context, name, factory, version);
     }
-    // Called when no database exists in disk and the helper class needs
-    // to create a new one.
+
+    /***
+     * This method is invoked when there is no database to start with
+     * @param _db
+     */
     @Override
     public void onCreate(SQLiteDatabase _db)
     {
         _db.execSQL(TelescopeDatabaseAdapter.DATABASE_CREATE);
 
     }
-    // Called when there is a database version mismatch meaning that the version
+
+    // This method is invoked when there is a database version mismatch meaning that the version
     // of the database on disk needs to be upgraded to the current version.
     @Override
     public void onUpgrade(SQLiteDatabase _db, int _oldVersion, int _newVersion)
