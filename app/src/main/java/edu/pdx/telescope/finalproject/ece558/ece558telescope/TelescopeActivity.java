@@ -29,22 +29,17 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseArray;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 
-import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.pdx.telescope.finalproject.ece558.ece558telescope.dummy.DummyContent;
-
 public class TelescopeActivity extends AppCompatActivity
-        implements TagsFragment.OnListFragmentInteractionListener,AddTagFragment.onAddTagListener {
+        implements MyTagsFragment.OnListFragmentInteractionListener,AddTagFragment.onAddTagListener {
 
     public static final String TAG= TelescopeActivity.class.getSimpleName();
 
@@ -408,7 +403,7 @@ public class TelescopeActivity extends AppCompatActivity
             {
                 //TODO: instantiate fragments accordingly
                 case 0: return AddTagFragment.newInstance("blah","blah");
-                default: return TagsFragment.newInstance(1);
+                default: return MyTagsFragment.newInstance(1);
             }
         }
 

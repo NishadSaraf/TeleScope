@@ -12,7 +12,7 @@ import java.util.ArrayList;
 
 /**
  * {@link RecyclerView.Adapter} that can display a {@link DummyItem} and makes a call to the
- * specified {@link TagsFragment.OnListFragmentInteractionListener}.
+ * specified {@link MyTagsFragment.OnListFragmentInteractionListener}.
  * TODO: Replace the implementation with code for your data type.
  */
 public class MyTagsRecyclerViewAdapter extends RecyclerView.Adapter<MyTagsRecyclerViewAdapter.ViewHolder> {
@@ -20,14 +20,14 @@ public class MyTagsRecyclerViewAdapter extends RecyclerView.Adapter<MyTagsRecycl
 
     //Attributes of MyTagsRecyclerViewAdapter
     private final ArrayList<BLETag> mValues;
-    private final TagsFragment.OnListFragmentInteractionListener mListener;
+    private final MyTagsFragment.OnListFragmentInteractionListener mListener;
 
     /***
      * Parametrized constructor
      * @param items Dataset for adapter
      * @param listener Listener to interact with
      */
-    public MyTagsRecyclerViewAdapter(ArrayList<BLETag> items, TagsFragment.OnListFragmentInteractionListener listener) {
+    public MyTagsRecyclerViewAdapter(ArrayList<BLETag> items, MyTagsFragment.OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }

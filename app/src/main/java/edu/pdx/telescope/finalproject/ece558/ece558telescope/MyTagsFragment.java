@@ -10,11 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import edu.pdx.telescope.finalproject.ece558.ece558telescope.dummy.DummyContent;
-import edu.pdx.telescope.finalproject.ece558.ece558telescope.dummy.DummyContent.DummyItem;
-
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * A fragment representing a list of Items.
@@ -22,7 +18,7 @@ import java.util.List;
  * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
  * interface.
  */
-public class TagsFragment extends Fragment {
+public class MyTagsFragment extends Fragment {
 
     // TODO: Customize parameter argument names
     private static final String ARG_COLUMN_COUNT = "column-count";
@@ -34,13 +30,13 @@ public class TagsFragment extends Fragment {
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public TagsFragment() {
+    public MyTagsFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static TagsFragment newInstance(int columnCount) {
-        TagsFragment fragment = new TagsFragment();
+    public static MyTagsFragment newInstance(int columnCount) {
+        MyTagsFragment fragment = new MyTagsFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
         fragment.setArguments(args);
@@ -59,7 +55,7 @@ public class TagsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_tags_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_my_tags, container, false);
 
         // Set the adapter
         if (view instanceof RecyclerView) {

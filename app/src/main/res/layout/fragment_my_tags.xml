@@ -9,5 +9,5 @@
     android:layout_marginLeft="16dp"
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context="edu.pdx.telescope.finalproject.ece558.ece558telescope.TagsFragment"
+    tools:context="edu.pdx.telescope.finalproject.ece558.ece558telescope.MyTagsFragment"
     tools:listitem="@layout/fragment_tag_info" />
