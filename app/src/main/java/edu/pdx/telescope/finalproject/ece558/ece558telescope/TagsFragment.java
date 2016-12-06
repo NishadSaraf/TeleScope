@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import edu.pdx.telescope.finalproject.ece558.ece558telescope.dummy.DummyContent;
 import edu.pdx.telescope.finalproject.ece558.ece558telescope.dummy.DummyContent.DummyItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -69,7 +70,8 @@ public class TagsFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new MyTagsRecyclerViewAdapter(DummyContent.ITEMS, mListener));
+            ArrayList<BLETag> tagList = ((TelescopeActivity)getActivity()).getmBLETags();
+            recyclerView.setAdapter(new MyTagsRecyclerViewAdapter(tagList, mListener));
         }
         return view;
     }
@@ -104,6 +106,6 @@ public class TagsFragment extends Fragment {
      */
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onListFragmentInteraction(BLETag item);
     }
 }

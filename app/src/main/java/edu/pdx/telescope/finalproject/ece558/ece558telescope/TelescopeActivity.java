@@ -51,8 +51,12 @@ public class TelescopeActivity extends AppCompatActivity
     //References for bluetooth management
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
+
+    //TODO: remove mDevices because it is no longer in use
     private SparseArray<BluetoothDevice> mDevices;  //stores all the available devices
     private BluetoothGatt mConnectedGatt;           //represents the connected device
+
+    private ArrayList<BLETag> mBLETags;
 
     private Handler mHandler = new Handler();       //Handles updates to UI
 
@@ -71,6 +75,23 @@ public class TelescopeActivity extends AppCompatActivity
      */
     private ViewPager mViewPager;
 
+    /***
+     * Getter for BLETags
+     * @return
+     */
+    public ArrayList<BLETag> getmBLETags() {
+        return mBLETags;
+    }
+
+    //TODO: Dummy method, remove after testing
+    private void populateTagForTesting()
+    {
+        for (int i=0; i< 10;i++)
+        {
+            BLETag tagItem = new BLETag("MAC:"+(i+1),"Device "+(i+1),null,false);
+            mBLETags.add(tagItem);
+        }
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +101,7 @@ public class TelescopeActivity extends AppCompatActivity
         mBluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         mBluetoothAdapter = mBluetoothManager.getAdapter();
         mDevices = new SparseArray<BluetoothDevice>();
+        mBLETags = new ArrayList<BLETag>();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -104,6 +126,8 @@ public class TelescopeActivity extends AppCompatActivity
             }
         });
 
+        //TODO: dummy method for testing
+        populateTagForTesting();
     }
 
 
@@ -340,7 +364,9 @@ public class TelescopeActivity extends AppCompatActivity
             Log.i(TAG, "New LE Device: " + device.getName() + " @ " + result.getRssi());
 
             //Add it to the collection
-            mDevices.put(device.hashCode(), device);
+            //TODO: give proper bool for is tag already saved
+            //mDevices.put(device.hashCode(), device);
+            mBLETags.add(new BLETag(device.getAddress(),device.getName(),device,false));
 
             //Update the overflow menu
             invalidateOptionsMenu();
@@ -350,8 +376,8 @@ public class TelescopeActivity extends AppCompatActivity
     };
 
     @Override
-    public void onListFragmentInteraction(DummyContent.DummyItem item) {
-        Toast.makeText(this,item.content,Toast.LENGTH_SHORT).show();
+    public void onListFragmentInteraction(BLETag item) {
+        Toast.makeText(this,item.getmDeviceName(),Toast.LENGTH_SHORT).show();
     }
 
     //TODO: Make onTagAdded() meaningful
