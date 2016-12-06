@@ -35,7 +35,7 @@ public class MyTagsRecyclerViewAdapter extends RecyclerView.Adapter<MyTagsRecycl
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_tag_info, parent, false);
+                .inflate(R.layout.view_holder_tag_info, parent, false);
         return new ViewHolder(view);
     }
 

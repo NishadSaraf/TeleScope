@@ -2,7 +2,7 @@
 <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/list"
+    android:id="@+id/my_tags_list"
     android:name="edu.pdx.telescope.finalproject.ece558.ece558telescope.TagsFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -10,4 +10,4 @@
     android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
     tools:context="edu.pdx.telescope.finalproject.ece558.ece558telescope.MyTagsFragment"
-    tools:listitem="@layout/fragment_tag_info" />
+    tools:listitem="@layout/view_holder_tag_info" />
