@@ -3,12 +3,18 @@ package edu.pdx.telescope.finalproject.ece558.ece558telescope;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.CompoundButton;
+import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.ToggleButton;
+
+import java.util.ArrayList;
 
 
 /**
@@ -26,6 +32,7 @@ public class AddTagFragment extends Fragment {
     private static final String ARG_PARAM2 = "param2";
 
     private ToggleButton mToggleButton;
+    private ListView mAvailableTags;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -72,6 +79,20 @@ public class AddTagFragment extends Fragment {
 
         //Instantiating view elements
         mToggleButton = (ToggleButton) inflatedView.findViewById(R.id.toggleButton);
+        mAvailableTags = (ListView) inflatedView.findViewById(R.id.available_tag_list);
+
+        //setting adapter for available tag list view
+        ArrayList<BLETag> filteredtags= new ArrayList<BLETag>();
+        ArrayList<BLETag> alltagslist= ((TelescopeActivity)getActivity()).getmBLETags();
+
+        for (int i=0; i< alltagslist.size() ; i++)
+        {
+            if( !alltagslist.get(i).isSavedTag()){
+               filteredtags.add(alltagslist.get(i));
+            }
+        }
+
+        mAvailableTags.setAdapter(new AvailableTagListAdapter(getActivity(),filteredtags));
 
         //Setting listener for toggle button
         mToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -126,5 +147,29 @@ public class AddTagFragment extends Fragment {
     public interface onAddTagListener {
         // TODO: Update argument type and name
         void onTagAdded(Uri uri);
+    }
+
+    public class AvailableTagListAdapter extends ArrayAdapter<BLETag>{
+        public AvailableTagListAdapter(Context context, ArrayList<BLETag> availabletags) {
+            super(context,R.layout.view_holder_tag_info, availabletags);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            LayoutInflater inflater= LayoutInflater.from(getContext());
+            View inflatedView= inflater.inflate(R.layout.view_available_tag,parent,false);
+
+            //Extracting tag reference
+            BLETag availabletag= getItem(position);
+
+            TextView tagname= (TextView) inflatedView.findViewById(R.id.available_tag_name);
+            TextView tagmacaddress= (TextView) inflatedView.findViewById(R.id.available_tag_mac_address);
+
+            tagname.setText(availabletag.getmDeviceName());
+            tagmacaddress.setText(availabletag.getmMACAddress());
+
+            return inflatedView;
+        }
     }
 }

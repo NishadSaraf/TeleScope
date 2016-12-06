@@ -59,29 +59,12 @@ public class MyTagsFragment extends Fragment {
 
         // Set the adapter
         if (view instanceof RecyclerView) {
-            Context context = view.getContext();
+
             RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
             ArrayList<BLETag> tagList = ((TelescopeActivity)getActivity()).getmBLETags();
             recyclerView.setAdapter(new MyTagsRecyclerViewAdapter(tagList, mListener));
         }
         return view;
-    }
-
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
-        }
     }
 
     @Override

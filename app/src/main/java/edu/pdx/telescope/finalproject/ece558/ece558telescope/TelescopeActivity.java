@@ -173,7 +173,7 @@ public class TelescopeActivity extends AppCompatActivity
             Log.i(TAG,"Bluetooth is disabled");
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivity(enableBtIntent);
-            finish();
+//            finish();
             return;
         }
 

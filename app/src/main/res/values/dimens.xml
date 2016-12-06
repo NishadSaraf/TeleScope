@@ -7,7 +7,7 @@
     <dimen name="text_margin">16dp</dimen>
 
     <!-- Listview dimensions -->
-    <dimen name="list_item_large_margin">9dp</dimen>
-    <dimen name="list_item_medium_margin">6dp</dimen>
-    <dimen name="list_item_small_margin">3dp</dimen>
+    <dimen name="list_item_large_margin">12dp</dimen>
+    <dimen name="list_item_medium_margin">9dp</dimen>
+    <dimen name="list_item_small_margin">6dp</dimen>
 </resources>

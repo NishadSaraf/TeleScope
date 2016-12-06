@@ -11,7 +11,7 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="0.5">
+            android:layout_weight="1">
             <TextView
                 android:id="@+id/scanning_tv"
                 android:layout_alignParentStart="true"
@@ -20,10 +20,11 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/scanning_status"
-                android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+                android:textAllCaps="true"
+                android:textAppearance="@android:style/TextAppearance.Material.Subhead" />
             <ToggleButton
                 android:layout_alignParentTop="true"
-                android:layout_alignParentEnd="true"
+                android:layout_toRightOf="@id/scanning_tv"
                 android:text="ToggleButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -38,9 +39,10 @@
                 android:layout_below="@+id/scanning_tv"/>
 
             <ListView
+                android:id="@+id/available_tag_list"
                 android:layout_below="@+id/available_tags"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
+                android:layout_height="match_parent"
                 android:layout_centerInParent="true"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
@@ -49,46 +51,51 @@
         </RelativeLayout>
 
         <RelativeLayout
+            android:id="@+id/add_tag_container"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
 
             <TextView
+                android:id="@+id/mac_address"
                 android:text="@string/mac_address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true"
                 android:padding="@dimen/appbar_padding_top"
-                android:layout_marginTop="26dp"
-                android:id="@+id/mac_address" />
+                android:layout_marginTop="26dp" />
 
             <TextView
+                android:id="@+id/textView2"
                 android:text="@string/tag_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="@dimen/appbar_padding_top"
                 android:layout_below="@+id/mac_address"
-                android:layout_marginTop="26dp"
-                android:id="@+id/textView2" />
+                android:layout_alignParentStart="true"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="26dp" />
 
             <TextView
+                android:id="@+id/textView3"
                 android:text="@string/tag_group"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/textView2"
                 android:padding="@dimen/appbar_padding_top"
-                android:layout_alignEnd="@+id/textView2"
-                android:layout_marginTop="26dp"
-                android:id="@+id/textView3" />
+                android:layout_alignParentStart="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="26dp" />
 
             <Button
-                android:text="@string/add_tag_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
                 android:id="@+id/add_tag_button"
-                android:layout_below="@+id/textView3"
-                android:layout_centerHorizontal="true" />
+                android:text="@string/add_tag_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="26dp"  />
         </RelativeLayout>
 
     </LinearLayout>
