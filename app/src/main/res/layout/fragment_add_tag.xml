@@ -12,31 +12,27 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
-            <TextView
-                android:id="@+id/scanning_tv"
-                android:layout_alignParentStart="true"
-                android:layout_alignBottom="@+id/toggleButton"
-                android:paddingBottom="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/scanning_status"
-                android:textAllCaps="true"
-                android:textAppearance="@android:style/TextAppearance.Material.Subhead" />
-            <ToggleButton
+
+            <Button
+                android:id="@+id/scan_button"
                 android:layout_alignParentTop="true"
-                android:layout_toRightOf="@id/scanning_tv"
-                android:text="ToggleButton"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:text="@string/start_scan_button"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/toggleButton" />
+                android:layout_height="wrap_content" />
 
             <TextView
                 android:id="@+id/available_tags"
-                android:padding="5dp"
+                android:text="@string/available_tags"
+                android:layout_below="@+id/scan_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/available_tags"
-                android:layout_below="@+id/scanning_tv"/>
+                android:layout_alignParentStart="true"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                android:layout_marginTop="6dp"
+                android:layout_marginLeft="5dp" />
 
             <ListView
                 android:id="@+id/available_tag_list"
@@ -46,8 +42,9 @@
                 android:layout_centerInParent="true"
                 android:layout_marginStart="10dp"
                 android:layout_marginEnd="10dp"
-                android:layout_marginTop="10dp" />
+                android:layout_above="@+id/action_divider"/>
             <View style="@style/Divider"
+                android:id="@+id/action_divider"
                 android:layout_alignParentBottom="true"/>
         </RelativeLayout>
 
@@ -58,26 +55,56 @@
             android:layout_weight="1">
 
             <TextView
-                android:id="@+id/mac_address"
-                android:text="@string/mac_address"
+                android:id="@+id/new_tag_details"
+                android:text="@string/new_tag_details"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_alignParentTop="true"
                 android:layout_alignParentStart="true"
+                android:layout_marginLeft="5dp"
+                android:textAllCaps="true"
+                android:textStyle="bold"
+                android:layout_marginTop="6dp" />
+            <TextView
+                android:id="@+id/mac_address"
+                android:text="@string/mac_address"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/new_tag_details"
                 android:padding="@dimen/appbar_padding_top"
-                android:layout_marginTop="26dp" />
+                android:layout_marginLeft="@dimen/list_item_small_margin"
+                android:layout_marginTop="10dp" />
 
+            <EditText
+                android:id="@+id/mac_address_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:hint="@string/select_a_tag"
+                android:ems="10"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="150dp"
+                android:layout_alignBaseline="@+id/mac_address"/>
             <TextView
                 android:id="@+id/textView2"
                 android:text="@string/tag_name"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="@dimen/appbar_padding_top"
                 android:layout_below="@+id/mac_address"
-                android:layout_alignParentStart="true"
-                android:layout_centerVertical="true"
-                android:layout_marginTop="26dp" />
+                android:padding="@dimen/appbar_padding_top"
+                android:layout_marginLeft="@dimen/list_item_small_margin"
+                android:layout_marginTop="10dp"/>
 
+            <EditText
+                android:id="@+id/tag_name_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="textPersonName"
+                android:hint="@string/enter_name_for_tag"
+                android:ems="10"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="150dp"
+                android:layout_alignBaseline="@+id/textView2"/>
             <TextView
                 android:id="@+id/textView3"
                 android:text="@string/tag_group"
@@ -85,47 +112,32 @@
                 android:layout_height="wrap_content"
                 android:layout_below="@+id/textView2"
                 android:padding="@dimen/appbar_padding_top"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentBottom="true"
-                android:layout_marginTop="26dp" />
-
-            <Button
-                android:id="@+id/add_tag_button"
-                android:text="@string/add_tag_button"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_centerHorizontal="true"
-                android:layout_marginBottom="26dp"  />
-
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:text="Name"
-                android:ems="10"
-                android:layout_alignBottom="@+id/mac_address"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="12dp"
-                android:id="@+id/editText" />
-
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:text="Name"
-                android:ems="10"
-                android:layout_above="@+id/textView3"
-                android:layout_alignEnd="@+id/editText"
-                android:id="@+id/editText2" />
+                android:layout_marginLeft="@dimen/list_item_small_margin"
+                android:layout_marginTop="10dp" />
 
             <Spinner
                 android:id="@+id/spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_alignTop="@+id/textView3"
-                android:layout_toEndOf="@+id/textView3"
-                android:layout_alignStart="@+id/editText2" />
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="150dp"
+                android:clickable="true"
+                android:spinnerMode="dropdown"
+                android:layout_alignLeft="@+id/tag_name_text"
+                android:layout_alignRight="@+id/tag_name_text"
+                android:minHeight="35dp"
+                android:layout_alignBottom="@+id/textView3" />
+            <Button
+                android:id="@+id/add_tag_button"
+                android:text="@string/add_tag_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/textView3"
+                android:layout_centerHorizontal="true"
+                android:layout_marginBottom="20dp"
+                android:layout_marginTop="20dp"  />
+
+
         </RelativeLayout>
 
     </LinearLayout>

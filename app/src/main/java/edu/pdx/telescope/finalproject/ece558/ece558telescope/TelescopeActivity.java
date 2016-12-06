@@ -12,9 +12,9 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -29,10 +29,14 @@ import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -52,7 +56,9 @@ public class TelescopeActivity extends AppCompatActivity
     private BluetoothGatt mConnectedGatt;           //represents the connected device
 
     private ArrayList<BLETag> mBLETags;
+    private ArrayList<BLETag> mScannedBLETags;
 
+    private AvailableTagListAdapter mScannedListAdapter;
     private Handler mHandler = new Handler();       //Handles updates to UI
 
     /**
@@ -69,6 +75,21 @@ public class TelescopeActivity extends AppCompatActivity
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
+
+    /***
+     * Getter for mScannedListAdapter
+     * @return
+     */
+    public AvailableTagListAdapter getmScannedListAdapter() {
+        return mScannedListAdapter;
+    }
+    /***
+     * Getter for scanned BLE tags
+     * @return
+     */
+    public ArrayList<BLETag> getmScannedBLETags() {
+        return mScannedBLETags;
+    }
 
     /***
      * Getter for BLETags
@@ -97,6 +118,7 @@ public class TelescopeActivity extends AppCompatActivity
         mBluetoothAdapter = mBluetoothManager.getAdapter();
         mDevices = new SparseArray<BluetoothDevice>();
         mBLETags = new ArrayList<BLETag>();
+        mScannedBLETags = new ArrayList<BLETag>();
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -107,6 +129,9 @@ public class TelescopeActivity extends AppCompatActivity
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
+
+        //setting adapter for available tag list view
+        mScannedListAdapter = new AvailableTagListAdapter(this,mScannedBLETags);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
@@ -165,6 +190,7 @@ public class TelescopeActivity extends AppCompatActivity
         super.onResume();
 
         /***
+         * TODO: handle permission asking properly for BT and GPS
          * Ensure that bluetooth permission is available and
          * bluetooth is turned on otherwise, prompt user to do so
          */
@@ -192,6 +218,9 @@ public class TelescopeActivity extends AppCompatActivity
     * Begin a scan for new BLE devices
     */
     public void startScan() {
+
+        //Clearing the previous scan result adapter
+        mScannedListAdapter.clear();
 
         //Setting scan filter - scan for what
         ScanFilter scanFilter = new ScanFilter.Builder()
@@ -322,7 +351,11 @@ public class TelescopeActivity extends AppCompatActivity
         public void onScanResult(int callbackType, ScanResult result) {
             Log.d(TAG, "onScanResult");
 
-            processResult(result);
+            if(mViewPager.getCurrentItem() == 0)
+            {
+                addBLETagToList(result);
+            }
+
         }
 
         /***
@@ -335,7 +368,7 @@ public class TelescopeActivity extends AppCompatActivity
 
             //Processing each result
             for (ScanResult result : results) {
-                processResult(result);
+                addBLETagToList(result);
             }
         }
 
@@ -352,20 +385,30 @@ public class TelescopeActivity extends AppCompatActivity
          * Processes a scan result
          * @param result
          */
-        private void processResult(ScanResult result) {
+        private void addBLETagToList(ScanResult result) {
 
             //Getting device from the result
             BluetoothDevice device = result.getDevice();
             Log.i(TAG, "New LE Device: " + device.getName() + " @ " + result.getRssi());
 
+            boolean isalreadyadded=false;
+
             //Add it to the collection
             //TODO: give proper bool for is tag already saved
             //mDevices.put(device.hashCode(), device);
-            mBLETags.add(new BLETag(device.getAddress(),device.getName(),device,false));
 
-            //Update the overflow menu
-            invalidateOptionsMenu();
+//            //Checking whether the device has been added already
+//            for (BLETag tag: mScannedBLETags)
+//            {
+//                if (tag.getmMACAddress().equals(device.getAddress()))
+//                    isalreadyadded=true;
+//            }
 
+            //adding only if the tag is not in the list
+            if (!isalreadyadded) {
+                mScannedBLETags.add(new BLETag(device.getAddress(), device.getName(), device, false));
+                mScannedListAdapter.notifyDataSetChanged();
+            }
             stopScan();
         }
     };
@@ -378,10 +421,10 @@ public class TelescopeActivity extends AppCompatActivity
     //TODO: Make onTagAdded() meaningful
     //TODO: change the parameter of onTagAdded()
     @Override
-    public void onTagAdded(Uri uri) {
+    public void onTagAdded(BLETag selectedtag) {
 
         //TODO: implement what should be done after tag addition
-        Toast.makeText(this,"A tag has been added",Toast.LENGTH_SHORT).show();
+        Toast.makeText(this,"A tag has been added with address"+selectedtag.getmMACAddress(),Toast.LENGTH_SHORT).show();
 
     }
 
@@ -427,5 +470,28 @@ public class TelescopeActivity extends AppCompatActivity
         }
     }
 
+    public class AvailableTagListAdapter extends ArrayAdapter<BLETag> {
+        public AvailableTagListAdapter(Context context, ArrayList<BLETag> availabletags) {
+            super(context,R.layout.view_holder_tag_info, availabletags);
+        }
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            LayoutInflater inflater= LayoutInflater.from(getContext());
+            View inflatedView= inflater.inflate(R.layout.view_available_tag,parent,false);
+
+            //Extracting tag reference
+            BLETag availabletag= getItem(position);
+
+            TextView tagname= (TextView) inflatedView.findViewById(R.id.available_tag_name);
+            TextView tagmacaddress= (TextView) inflatedView.findViewById(R.id.available_tag_mac_address);
+
+            tagname.setText(availabletag.getmDeviceName());
+            tagmacaddress.setText(availabletag.getmMACAddress());
+
+            return inflatedView;
+        }
+    }
 
 }

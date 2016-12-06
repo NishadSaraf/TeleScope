@@ -14,6 +14,7 @@ public class BLETag {
     // Attributes of a BLE tag
     private String mMACAddress;
     private String mDeviceName;
+    private String mGroup;
     private BluetoothDevice mDevice;
     private boolean isSavedTag;
 

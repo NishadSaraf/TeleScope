@@ -10,12 +10,16 @@
     <string name="add_tag">Add tag</string>
     <string name="action_settings">Settings</string>
     <string name="available_tags">Available Tags</string>
-    <string name="scanning_status">Scanning status</string>
     <string name="mac_address">MAC Address</string>
+    <string name="new_tag_details">New tag details</string>
     <string name="tag_name">Tag Name</string>
     <string name="tag_group">Tag Group</string>
     <string name="add_tag_button">Add Tag</string>
     <string name="add_tag_header">Add tag</string>
     <string name="tag_list_header">Tags list</string>
     <string name="group_list_header">Groups</string>
+    <string name="start_scan_button">Start scanning</string>
+    <string name="stop_scan_button">Stop scanning</string>
+    <string name="select_a_tag">Select a tag from the list</string>
+    <string name="enter_name_for_tag">Enter a name for your tag</string>
 </resources>

@@ -3,16 +3,16 @@ package edu.pdx.telescope.finalproject.ece558.ece558telescope;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 
@@ -30,9 +30,14 @@ public class AddTagFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private boolean isScanning=false;
 
-    private ToggleButton mToggleButton;
+    private Button mScanButton;
+    private Button mAddTagButton;
     private ListView mAvailableTags;
+    private EditText mMACAddressText;
+    private EditText mTagNameText;
+    private BLETag mSelectedTag;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -78,54 +83,92 @@ public class AddTagFragment extends Fragment {
         View inflatedView= inflater.inflate(R.layout.fragment_add_tag, container, false);
 
         //Instantiating view elements
-        mToggleButton = (ToggleButton) inflatedView.findViewById(R.id.toggleButton);
+        mScanButton = (Button) inflatedView.findViewById(R.id.scan_button);
+        mAddTagButton = (Button) inflatedView.findViewById(R.id.add_tag_button);
         mAvailableTags = (ListView) inflatedView.findViewById(R.id.available_tag_list);
+        mMACAddressText= (EditText)  inflatedView.findViewById(R.id.mac_address_text);
+        mTagNameText= (EditText)  inflatedView.findViewById(R.id.tag_name_text);
+
+
+        //references to save the original and filtered tag list
+//        ArrayList<BLETag> filteredtags= new ArrayList<BLETag>();
+
+        ArrayList<BLETag> scannedtagslist= ((TelescopeActivity)getActivity()).getmScannedBLETags();
+
+//        //Filtering only tags which are not already saved
+//        for (int i=0; i< alltagslist.size() ; i++)
+//        {
+//            if( !alltagslist.get(i).isSavedTag()){
+//               filteredtags.add(alltagslist.get(i));
+//            }
+//        }
 
         //setting adapter for available tag list view
-        ArrayList<BLETag> filteredtags= new ArrayList<BLETag>();
-        ArrayList<BLETag> alltagslist= ((TelescopeActivity)getActivity()).getmBLETags();
+        mAvailableTags.setAdapter(((TelescopeActivity)getActivity()).getmScannedListAdapter());
 
-        for (int i=0; i< alltagslist.size() ; i++)
-        {
-            if( !alltagslist.get(i).isSavedTag()){
-               filteredtags.add(alltagslist.get(i));
-            }
-        }
-
-        mAvailableTags.setAdapter(new AvailableTagListAdapter(getActivity(),filteredtags));
-
-        //Setting listener for toggle button
-        mToggleButton.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        //setting onitemclick listener for tag list
+        mAvailableTags.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked)
-                    ((TelescopeActivity)getActivity()).startScan();
-                else
-                    ((TelescopeActivity)getActivity()).stopScan();
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
+                mSelectedTag= (BLETag)parent.getItemAtPosition(position);
+                mMACAddressText.setText(mSelectedTag.getmMACAddress());
+                mTagNameText.setText(mSelectedTag.getmDeviceName());
             }
         });
 
+        //Setting listener for scan button
+        mScanButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
 
+                Button clickedButton= (Button) view;
+                if(isScanning) {
+                    ((TelescopeActivity) getActivity()).stopScan();
+                    isScanning=!isScanning;
+                    clickedButton.setText(getString(R.string.start_scan_button));
+
+                }
+                else {
+                    ((TelescopeActivity) getActivity()).startScan();
+                    isScanning=!isScanning;
+                    clickedButton.setText(getString(R.string.stop_scan_button));
+                }
+
+            }
+        });
+
+        //Setting onclicklistener for mAddTagButton
+        mAddTagButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                //Adds the tag only if there is any
+                if (mSelectedTag != null) {
+                    //Fetching tag name given by user
+                    String userSelectedTagName = mTagNameText.getText().toString();
+
+                    //Takes the user given name only if it is valid
+                    if (!userSelectedTagName.isEmpty()) {
+                        mSelectedTag.setmDeviceName(userSelectedTagName);
+                    }
+
+                    //Invoking listener method in parent activity
+                    //to signaling that a tag should be added
+                    onAddTagListener listener = (onAddTagListener) getActivity();
+                    listener.onTagAdded(mSelectedTag);
+
+                    //Clearing textboxes
+                    mMACAddressText.setText("");
+                    mTagNameText.setText("");
+
+                    //Clearing selected tag reference
+                    mSelectedTag = null;
+                }
+            }
+        });
 
         return inflatedView;
-    }
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onTagAdded(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof onAddTagListener) {
-            mListener = (onAddTagListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement onAddTagListener");
-        }
     }
 
     @Override
@@ -133,6 +176,7 @@ public class AddTagFragment extends Fragment {
         super.onDetach();
         mListener = null;
     }
+
 
     /**
      * This interface must be implemented by activities that contain this
@@ -146,30 +190,8 @@ public class AddTagFragment extends Fragment {
      */
     public interface onAddTagListener {
         // TODO: Update argument type and name
-        void onTagAdded(Uri uri);
+        void onTagAdded(BLETag selectedtag);
     }
 
-    public class AvailableTagListAdapter extends ArrayAdapter<BLETag>{
-        public AvailableTagListAdapter(Context context, ArrayList<BLETag> availabletags) {
-            super(context,R.layout.view_holder_tag_info, availabletags);
-        }
 
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-
-            LayoutInflater inflater= LayoutInflater.from(getContext());
-            View inflatedView= inflater.inflate(R.layout.view_available_tag,parent,false);
-
-            //Extracting tag reference
-            BLETag availabletag= getItem(position);
-
-            TextView tagname= (TextView) inflatedView.findViewById(R.id.available_tag_name);
-            TextView tagmacaddress= (TextView) inflatedView.findViewById(R.id.available_tag_mac_address);
-
-            tagname.setText(availabletag.getmDeviceName());
-            tagmacaddress.setText(availabletag.getmMACAddress());
-
-            return inflatedView;
-        }
-    }
 }
