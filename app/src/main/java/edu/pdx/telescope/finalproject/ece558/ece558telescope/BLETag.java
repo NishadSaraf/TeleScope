@@ -15,6 +15,7 @@ public class BLETag {
     private String mMACAddress;
     private String mDeviceName;
     private String mGroup;
+    private String mLastActive;
     private BluetoothDevice mDevice;
     private boolean isSavedTag;
 
@@ -37,6 +38,22 @@ public class BLETag {
         this.setmDeviceName(mDeviceName);
         this.setmDevice(mDevice);
         this.setSavedTag(isSavedTag);
+    }
+
+    public String getmLastActive() {
+        return mLastActive;
+    }
+
+    public void setmLastActive(String mLastActive) {
+        this.mLastActive = mLastActive;
+    }
+
+    public String getmGroup() {
+        return mGroup;
+    }
+
+    public void setmGroup(String mGroup) {
+        this.mGroup = mGroup;
     }
 
     public boolean isSavedTag() {

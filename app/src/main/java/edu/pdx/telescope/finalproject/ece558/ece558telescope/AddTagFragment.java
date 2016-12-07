@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -38,6 +39,7 @@ public class AddTagFragment extends Fragment {
     private EditText mMACAddressText;
     private EditText mTagNameText;
     private BLETag mSelectedTag;
+    private Spinner mGroupSpinner;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
@@ -88,6 +90,10 @@ public class AddTagFragment extends Fragment {
         mAvailableTags = (ListView) inflatedView.findViewById(R.id.available_tag_list);
         mMACAddressText= (EditText)  inflatedView.findViewById(R.id.mac_address_text);
         mTagNameText= (EditText)  inflatedView.findViewById(R.id.tag_name_text);
+        mGroupSpinner= (Spinner) inflatedView.findViewById(R.id.spinner);
+
+        //Setting adapter for spinner
+        //mGroupSpinner.setAdapter(((TelescopeActivity)getActivity()).getmTagGroupAdapter());
 
         //setting adapter for available tag list view
         mAvailableTags.setAdapter(((TelescopeActivity)getActivity()).getmScannedListAdapter());

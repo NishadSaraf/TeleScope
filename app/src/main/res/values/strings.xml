@@ -8,6 +8,8 @@
 
     <!-- Layout elements -->
     <string name="add_tag">Add tag</string>
+    <string name="locate_tag">Locate tag</string>
+    <string name="delete_tag">Delete tag</string>
     <string name="action_settings">Settings</string>
     <string name="available_tags">Available Tags</string>
     <string name="mac_address">MAC Address</string>
@@ -22,4 +24,6 @@
     <string name="stop_scan_button">Stop scanning</string>
     <string name="select_a_tag">Select a tag from the list</string>
     <string name="enter_name_for_tag">Enter a name for your tag</string>
+    <string name="locate_tag_fail">Unable to locate tag</string>
+    <string name="select_tag_first">Select a tag to locate</string>
 </resources>

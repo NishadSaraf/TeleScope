@@ -24,6 +24,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase _db)
     {
         _db.execSQL(TelescopeDatabaseAdapter.DATABASE_CREATE);
+        _db.execSQL(TelescopeDatabaseAdapter.DATABASE_TAG_CREATE);
 
     }
 
