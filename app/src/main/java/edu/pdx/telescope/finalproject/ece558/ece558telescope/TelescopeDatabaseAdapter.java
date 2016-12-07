@@ -83,7 +83,7 @@ public class TelescopeDatabaseAdapter {
         newValues.put("LAST_ACTIVE",inserttag.getmLastActive());
 
         // Insert the row into your table
-        db.insert(""+TAGS_TABLE+"", null, newValues);
+        db.insertOrThrow(""+TAGS_TABLE+"", null, newValues);
     }
 
     public long insertGroup(String groupname)
@@ -169,6 +169,23 @@ public class TelescopeDatabaseAdapter {
 
         }
         return tagsList;
+    }
+
+
+    public ArrayList<String> getAllGroups() {
+
+        ArrayList<String> groupList = new ArrayList<String>();    //stores list of groups
+        Cursor cursor = db.rawQuery("SELECT * FROM " + GROUPS_TABLE + " ;", null);
+
+        if (cursor.moveToFirst()) {
+            while (cursor.isAfterLast() == false) {
+                String groupName = cursor.getString(cursor.getColumnIndex("GROUP_NAME"));
+                groupList.add(groupName);
+                cursor.moveToNext();
+            }
+
+        }
+        return groupList;
     }
 
 }

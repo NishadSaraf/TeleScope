@@ -84,9 +84,5 @@ public class MyTagsRecyclerViewAdapter extends RecyclerView.Adapter<MyTagsRecycl
             mMACAddress = (TextView) view.findViewById(R.id.tag_mac_address);
         }
 
-        @Override
-        public String toString() {
-            return super.toString() + " '" + mMACAddress.getText() + "'";
-        }
     }
 }

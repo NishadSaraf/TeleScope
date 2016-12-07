@@ -14,6 +14,7 @@
     <string name="available_tags">Available Tags</string>
     <string name="mac_address">MAC Address</string>
     <string name="new_tag_details">New tag details</string>
+    <string name="available_groups">Available groups</string>
     <string name="tag_name">Tag Name</string>
     <string name="tag_group">Tag Group</string>
     <string name="add_tag_button">Add Tag</string>
@@ -26,4 +27,15 @@
     <string name="enter_name_for_tag">Enter a name for your tag</string>
     <string name="locate_tag_fail">Unable to locate tag</string>
     <string name="select_tag_first">Select a tag to locate</string>
+    <string name="tag_buzzing">Your tag is buzzing</string>
+    <string name="tag_added_success">Tag has been added successfully</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="tag_found">The tag has been located, initiating buzz</string>
+    <string name="trying_to_locate_tag">Please wait while the tag is being located</string>
+    <string name="tag_out_of_range">The tag has gone out of range</string>
+    <string name="duplicate_tag">This tag is already saved</string>
+    <string name="unable_to_proceed">Sorry, unable to do this action</string>
+    <string name="tag_deleted">The tag has been deleted successfully</string>
 </resources>

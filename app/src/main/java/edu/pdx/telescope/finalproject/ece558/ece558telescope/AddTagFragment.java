@@ -23,14 +23,11 @@ import java.util.ArrayList;
  * Activities that contain this fragment must implement the
  * {@link onAddTagListener} interface
  * to handle interaction events.
- * Use the {@link AddTagFragment#newInstance} factory method to
  * create an instance of this fragment.
  */
 public class AddTagFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
+
     private boolean isScanning=false;
 
     private Button mScanButton;
@@ -40,42 +37,16 @@ public class AddTagFragment extends Fragment {
     private EditText mTagNameText;
     private BLETag mSelectedTag;
     private Spinner mGroupSpinner;
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-
     private onAddTagListener mListener;
 
     public AddTagFragment() {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment AddTagFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static AddTagFragment newInstance(String param1, String param2) {
-        AddTagFragment fragment = new AddTagFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -93,7 +64,7 @@ public class AddTagFragment extends Fragment {
         mGroupSpinner= (Spinner) inflatedView.findViewById(R.id.spinner);
 
         //Setting adapter for spinner
-        //mGroupSpinner.setAdapter(((TelescopeActivity)getActivity()).getmTagGroupAdapter());
+        mGroupSpinner.setAdapter(((TelescopeActivity)getActivity()).getmTagGroupAdapter());
 
         //setting adapter for available tag list view
         mAvailableTags.setAdapter(((TelescopeActivity)getActivity()).getmScannedListAdapter());
@@ -148,7 +119,7 @@ public class AddTagFragment extends Fragment {
                     }
 
                     //Invoking listener method in parent activity
-                    //to signaling that a tag should be added
+                    //to signal that a tag should be added
                     onAddTagListener listener = (onAddTagListener) getActivity();
                     listener.onTagAdded(mSelectedTag);
 

@@ -79,7 +79,7 @@
                 android:id="@+id/mac_address_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
+                android:editable="false"
                 android:hint="@string/select_a_tag"
                 android:ems="10"
                 android:layout_alignParentStart="true"
