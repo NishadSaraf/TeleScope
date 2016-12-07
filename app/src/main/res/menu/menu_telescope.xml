@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="edu.pdx.telescope.finalproject.ece558.ece558telescope.TelescopeActivity">
     <item
-        android:id="@+id/action_settings"
+        android:id="@+id/action_exit"
         android:orderInCategory="600"
-        android:title="@string/action_settings"
+        android:title="@string/action_exit"
         app:showAsAction="never" />
     <item
         android:id="@+id/action_locate"
@@ -25,4 +25,5 @@
         android:orderInCategory="800"
         android:title="@string/add_tag"
         app:showAsAction="always" />
+
 </menu>

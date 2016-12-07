@@ -129,6 +129,18 @@ public class TelescopeDatabaseAdapter {
         return numberOfEntriesDeleted;
     }
 
+    /***
+     * Deletes a tag
+     * @param groupName MAC address of the tag to be deleted
+     * @return number of tags deleted
+     */
+    public int deleteGroup(String groupName)
+    {
+        String where="GROUP_NAME=?";
+        int numberOfEntriesDeleted= db.delete(""+GROUPS_TABLE+"", where, new String[]{groupName}) ;
+        return numberOfEntriesDeleted;
+    }
+
 
     public String getSingleEntry(String macAddress)
     {

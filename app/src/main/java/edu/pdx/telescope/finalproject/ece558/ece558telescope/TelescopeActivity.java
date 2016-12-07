@@ -1,11 +1,11 @@
 package edu.pdx.telescope.finalproject.ece558.ece558telescope;
 
+import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.ScanCallback;
@@ -13,11 +13,11 @@ import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteException;
-import android.net.Uri;
 import android.os.Handler;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -39,12 +39,12 @@ import android.view.View;
 
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 
 public class TelescopeActivity extends AppCompatActivity
         implements MyTagsFragment.OnMyTagListInteractionListener,AddTagFragment.onAddTagListener,TagGroupFragment.OnTagGroupInteractionListener {
@@ -75,8 +75,15 @@ public class TelescopeActivity extends AppCompatActivity
     private ArrayAdapter<String> mTagGroupAdapter;
 
 
+    private String mNewGroupName;
+
+
     private SectionsPagerAdapter mSectionsPagerAdapter;         //Adapter for viewpager
     private ViewPager mViewPager;
+
+    public void setmNewGroupName(String mNewGroupName) {
+        this.mNewGroupName = mNewGroupName;
+    }
 
     /***
      * Getter for mTagGroupAdapter
@@ -168,8 +175,30 @@ public class TelescopeActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                if (mViewPager.getCurrentItem()==1) {
+                    if (mUserSelectedBLETag != null) {
+                        //TODO: locate properly
+                        try {
+                            //getting device reference
+                            BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mUserSelectedBLETag.getmMACAddress());
+
+                            //trying to connect with the device
+                            device.connectGatt(getApplicationContext(), false, mGattCallback);
+                            Snackbar.make(mViewPager, R.string.trying_to_locate_tag, Snackbar.LENGTH_INDEFINITE)
+                                    .setAction("Action", null).show();
+
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                            Snackbar.make(mViewPager, R.string.locate_tag_fail, Snackbar.LENGTH_SHORT)
+                                    .setAction("Action", null).show();
+                        }
+                    }
+                    else
+                    {
+                        Snackbar.make(mViewPager, R.string.select_tag_first, Snackbar.LENGTH_SHORT)
+                                .setAction("Action", null).show();
+                    }
+                }
             }
         });
 
@@ -199,6 +228,7 @@ public class TelescopeActivity extends AppCompatActivity
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_telescope, menu);
+
         return true;
     }
 
@@ -211,8 +241,8 @@ public class TelescopeActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        if (id == R.id.action_exit) {
+            finish();
         }
 
         if (id== R.id.action_delete){
@@ -232,6 +262,35 @@ public class TelescopeActivity extends AppCompatActivity
                         Snackbar.make(mViewPager, R.string.unable_to_proceed, Snackbar.LENGTH_SHORT)
                                 .setAction("Action", null).show();
                     }
+                }
+                else
+                {
+                    Snackbar.make(mViewPager, R.string.select_tag_first, Snackbar.LENGTH_SHORT)
+                            .setAction("Action", null).show();
+                }
+            }
+            else if (mViewPager.getCurrentItem()==2)
+            {
+                if (mUserSelectedGroup != null) {
+                    try {
+                        telescopeDataBaseAdapter.deleteGroup(mUserSelectedGroup);
+                        mBLEGroups.clear();
+                        mBLEGroups.addAll(telescopeDataBaseAdapter.getAllGroups());
+                        mTagGroupAdapter.notifyDataSetChanged();
+
+                        Snackbar.make(mViewPager, R.string.group_deleted, Snackbar.LENGTH_SHORT)
+                                .setAction("Action", null).show();
+
+                    } catch (SQLiteException ex) {
+                        ex.printStackTrace();
+                        Snackbar.make(mViewPager, R.string.unable_to_proceed, Snackbar.LENGTH_SHORT)
+                                .setAction("Action", null).show();
+                    }
+                }
+                else
+                {
+                    Snackbar.make(mViewPager, R.string.select_tag_first, Snackbar.LENGTH_SHORT)
+                            .setAction("Action", null).show();
                 }
             }
 
@@ -263,6 +322,56 @@ public class TelescopeActivity extends AppCompatActivity
                 }
             }
         }
+        if (id== R.id.action_add_tag){
+            if (mViewPager.getCurrentItem()==2) {
+                    try {
+
+                        final AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+                        final EditText edittext = new EditText(this);
+                        alert.setMessage("Enter the new group name");
+                        alert.setTitle("Add group");
+
+                        alert.setView(edittext);
+
+                        alert.setPositiveButton("Yes Option", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                if(!edittext.getText().toString().isEmpty()) {
+                                    telescopeDataBaseAdapter.insertGroup(edittext.getText().toString());
+                                    mBLEGroups.clear();
+                                    mBLEGroups.addAll(telescopeDataBaseAdapter.getAllGroups());
+                                    mTagGroupAdapter.notifyDataSetChanged();
+                                    Snackbar.make(mViewPager, R.string.group_added, Snackbar.LENGTH_SHORT)
+                                            .setAction("Action", null).show();
+                                    dialog.dismiss();
+                                }
+                            }
+                        });
+
+                        alert.setNegativeButton("Cancel Option", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                dialog.dismiss();
+                            }
+                        });
+
+                        alert.show();
+
+
+
+                    } catch (SQLiteException ex) {
+                        ex.printStackTrace();
+                        Snackbar.make(mViewPager, R.string.unable_to_proceed, Snackbar.LENGTH_SHORT)
+                                .setAction("Action", null).show();
+                    }
+
+            }
+            else if (mViewPager.getCurrentItem()==1)
+            {
+                mViewPager.setCurrentItem(0,true);
+            }
+
+        }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -529,7 +638,6 @@ public class TelescopeActivity extends AppCompatActivity
     public void onListItemSelected(BLETag item) {
 
         mUserSelectedBLETag = item;
-        Toast.makeText(this,item.getmDeviceName(),Toast.LENGTH_SHORT).show();
     }
 
     //TODO: Make onTagAdded() meaningful
@@ -567,8 +675,8 @@ public class TelescopeActivity extends AppCompatActivity
     }
 
     @Override
-    public void onFragmentInteraction(Uri uri) {
-        //TODO: insert group or delete
+    public void onGroupItemSelection(String groupName) {
+        mUserSelectedGroup= groupName;
     }
 
 

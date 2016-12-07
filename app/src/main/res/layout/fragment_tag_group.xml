@@ -20,6 +20,8 @@
     <ListView
         android:id="@+id/available_group_list"
         android:layout_below="@+id/available_groups"
+        android:choiceMode="singleChoice"
+        android:listSelector="@color/itemBackgroundColorPressed"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_centerInParent="true"

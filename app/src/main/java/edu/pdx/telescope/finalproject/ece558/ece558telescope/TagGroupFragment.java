@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 
@@ -35,19 +36,22 @@ public class TagGroupFragment extends Fragment {
         mGroupsListView = (ListView) inflatedView.findViewById(R.id.available_group_list);
         mGroupsListView.setAdapter(((TelescopeActivity)getActivity()).getmTagGroupAdapter());
 
+        //setting listener
+        mGroupsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                String selectedGroup= (String) adapterView.getItemAtPosition(position);
+
+                //Signaling main activity of group selection
+                mListener= ((OnTagGroupInteractionListener) getActivity());
+                mListener.onGroupItemSelection(selectedGroup);
+
+            }
+        });
+
         return inflatedView;
     }
 
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnTagGroupInteractionListener) {
-            mListener = (OnTagGroupInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnTagGroupInteractionListener");
-        }
-    }
 
     @Override
     public void onDetach() {
@@ -67,6 +71,6 @@ public class TagGroupFragment extends Fragment {
      */
     public interface OnTagGroupInteractionListener {
         // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
+        void onGroupItemSelection(String groupname);
     }
 }
