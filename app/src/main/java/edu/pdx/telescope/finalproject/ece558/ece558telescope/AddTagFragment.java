@@ -89,20 +89,6 @@ public class AddTagFragment extends Fragment {
         mMACAddressText= (EditText)  inflatedView.findViewById(R.id.mac_address_text);
         mTagNameText= (EditText)  inflatedView.findViewById(R.id.tag_name_text);
 
-
-        //references to save the original and filtered tag list
-//        ArrayList<BLETag> filteredtags= new ArrayList<BLETag>();
-
-        ArrayList<BLETag> scannedtagslist= ((TelescopeActivity)getActivity()).getmScannedBLETags();
-
-//        //Filtering only tags which are not already saved
-//        for (int i=0; i< alltagslist.size() ; i++)
-//        {
-//            if( !alltagslist.get(i).isSavedTag()){
-//               filteredtags.add(alltagslist.get(i));
-//            }
-//        }
-
         //setting adapter for available tag list view
         mAvailableTags.setAdapter(((TelescopeActivity)getActivity()).getmScannedListAdapter());
 
@@ -148,6 +134,8 @@ public class AddTagFragment extends Fragment {
                     //Fetching tag name given by user
                     String userSelectedTagName = mTagNameText.getText().toString();
 
+                    //TODO: remove dummy code to add category
+                    mSelectedTag.setmGroup("General");
                     //Takes the user given name only if it is valid
                     if (!userSelectedTagName.isEmpty()) {
                         mSelectedTag.setmDeviceName(userSelectedTagName);
