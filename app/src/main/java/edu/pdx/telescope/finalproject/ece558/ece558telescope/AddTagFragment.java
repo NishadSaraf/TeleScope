@@ -86,16 +86,18 @@ public class AddTagFragment extends Fragment {
             public void onClick(View view) {
 
                 Button clickedButton= (Button) view;
-                if(isScanning) {
-                    ((TelescopeActivity) getActivity()).stopScan();
-                    isScanning=!isScanning;
-                    clickedButton.setText(getString(R.string.start_scan_button));
+                if(!isScanning) {
+                    if(((TelescopeActivity) getActivity()).startScan()) {
+                        isScanning=!isScanning;
+                        clickedButton.setText(getString(R.string.stop_scan_button));
+                    }
 
                 }
                 else {
-                    ((TelescopeActivity) getActivity()).startScan();
-                    isScanning=!isScanning;
-                    clickedButton.setText(getString(R.string.stop_scan_button));
+                    ((TelescopeActivity) getActivity()).stopScan();
+                    isScanning = !isScanning;
+                    clickedButton.setText(getString(R.string.start_scan_button));
+
                 }
 
             }
@@ -157,6 +159,5 @@ public class AddTagFragment extends Fragment {
         // TODO: Update argument type and name
         void onTagAdded(BLETag selectedtag);
     }
-
 
 }

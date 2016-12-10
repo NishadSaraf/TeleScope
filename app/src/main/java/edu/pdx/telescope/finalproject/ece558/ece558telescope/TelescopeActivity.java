@@ -18,10 +18,12 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.sqlite.SQLiteConstraintException;
 import android.database.sqlite.SQLiteException;
-import android.os.Handler;
+import android.location.LocationManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 
@@ -47,7 +49,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TelescopeActivity extends AppCompatActivity
-        implements MyTagsFragment.OnMyTagListInteractionListener,AddTagFragment.onAddTagListener,TagGroupFragment.OnTagGroupInteractionListener {
+        implements MyTagsFragment.OnMyTagListInteractionListener,
+        AddTagFragment.onAddTagListener,
+        TagGroupFragment.OnTagGroupInteractionListener {
 
     public static final String TAG= TelescopeActivity.class.getSimpleName();
 
@@ -55,35 +59,23 @@ public class TelescopeActivity extends AppCompatActivity
     private BluetoothManager mBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
 
-    //TODO: remove mDevices because it is no longer in use
-    private SparseArray<BluetoothDevice> mDevices;  //stores all the available devices
     private BluetoothGatt mConnectedGatt;           //represents the connected device
 
-    private ArrayList<BLETag> mBLETags;
-    private ArrayList<BLETag> mScannedBLETags;
-    private ArrayList<String> mBLEGroups;
+    //References for different BLE lists
+    private ArrayList<BLETag> mBLETags;             //holds the list of saved BLE tags
+    private ArrayList<BLETag> mScannedBLETags;      //holds the list of scanned BLE tags
+    private ArrayList<String> mBLEGroups;           //List of different BLE groups
 
     private ScannedTagListAdapter mScannedListAdapter;
+    private MyTagsRecyclerViewAdapter mBLETagsAdapter;
+    private ArrayAdapter<String> mTagGroupAdapter;
+    private SectionsPagerAdapter mSectionsPagerAdapter;         //Adapter for viewpager
     private TelescopeDatabaseAdapter telescopeDataBaseAdapter;
-    private Handler mHandler = new Handler();                   //Handles updates to UI
 
     private BLETag mUserSelectedBLETag;
     private String mUserSelectedGroup;
-
-    private MyTagsRecyclerViewAdapter mBLETagsAdapter;
-
-    private ArrayAdapter<String> mTagGroupAdapter;
-
-
-    private String mNewGroupName;
-
-
-    private SectionsPagerAdapter mSectionsPagerAdapter;         //Adapter for viewpager
     private ViewPager mViewPager;
 
-    public void setmNewGroupName(String mNewGroupName) {
-        this.mNewGroupName = mNewGroupName;
-    }
 
     /***
      * Getter for mTagGroupAdapter
@@ -148,13 +140,16 @@ public class TelescopeActivity extends AppCompatActivity
         //Instantiating bluetooth references
         mBluetoothManager = (BluetoothManager) getSystemService(BLUETOOTH_SERVICE);
         mBluetoothAdapter = mBluetoothManager.getAdapter();
-        mDevices = new SparseArray<BluetoothDevice>();
+
+        //Instantiating different lists
         mBLETags = new ArrayList<BLETag>();
         mScannedBLETags = new ArrayList<BLETag>();
         mBLEGroups = new ArrayList<String>();
 
+        //Instantiating toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
@@ -166,38 +161,17 @@ public class TelescopeActivity extends AppCompatActivity
         //setting adapter for available tag list view
         mScannedListAdapter = new ScannedTagListAdapter(this,mScannedBLETags);
 
-
+        //Instantiating tab layout
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
 
-        //TODO: make use of snackbar
+        //Setting listener for FAB
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mViewPager.getCurrentItem()==1) {
-                    if (mUserSelectedBLETag != null) {
-                        //TODO: locate properly
-                        try {
-                            //getting device reference
-                            BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mUserSelectedBLETag.getmMACAddress());
-
-                            //trying to connect with the device
-                            device.connectGatt(getApplicationContext(), false, mGattCallback);
-                            Snackbar.make(mViewPager, R.string.trying_to_locate_tag, Snackbar.LENGTH_INDEFINITE)
-                                    .setAction("Action", null).show();
-
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                            Snackbar.make(mViewPager, R.string.locate_tag_fail, Snackbar.LENGTH_SHORT)
-                                    .setAction("Action", null).show();
-                        }
-                    }
-                    else
-                    {
-                        Snackbar.make(mViewPager, R.string.select_tag_first, Snackbar.LENGTH_SHORT)
-                                .setAction("Action", null).show();
-                    }
+                    locateBLETag(); //locates the BLE tag
                 }
             }
         });
@@ -223,45 +197,76 @@ public class TelescopeActivity extends AppCompatActivity
 
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        switch(requestCode)
+        {
+            case 0: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                } else {
+
+                    //permission granted as false
+                    Toast.makeText(this, "Location permission denied, Scanning for tag needs location permission", Toast.LENGTH_SHORT).show();
+                }
+                return;
+            }
+
+        }
+    }
+
+    private void locateBLETag() {
+        if (mUserSelectedBLETag != null) {
+            //TODO: locate properly
+            try {
+                //getting device reference
+                BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mUserSelectedBLETag.getmMACAddress());
+
+                //trying to connect with the device
+                device.connectGatt(getApplicationContext(), false, mGattCallback);
+                Snackbar.make(mViewPager, R.string.trying_to_locate_tag, Snackbar.LENGTH_INDEFINITE)
+                        .setAction("Action", null).show();
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                Snackbar.make(mViewPager, R.string.locate_tag_fail, Snackbar.LENGTH_SHORT)
+                        .setAction("Action", null).show();
+            }
+        }
+        else
+        {
+            Snackbar.make(mViewPager, R.string.select_tag_first, Snackbar.LENGTH_SHORT)
+                    .setAction("Action", null).show();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        //Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_telescope, menu);
-
         return true;
     }
 
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
+        //getting the id of menu item
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
+        //if option is exit
         if (id == R.id.action_exit) {
             finish();
         }
 
         if (id== R.id.action_delete){
-            if (mViewPager.getCurrentItem()==1) {
+            if (mViewPager.getCurrentItem()==1) { //deletes the tag, if the viewpager is showing tags
                 if (mUserSelectedBLETag != null) {
-                    try {
-                        telescopeDataBaseAdapter.deleteTag(mUserSelectedBLETag.getmMACAddress());
-                        mBLETags.clear();
-                        mBLETags.addAll(telescopeDataBaseAdapter.getAllTags());
-                        mBLETagsAdapter.notifyDataSetChanged();
-
-                        Snackbar.make(mViewPager, R.string.tag_deleted, Snackbar.LENGTH_SHORT)
-                                .setAction("Action", null).show();
-
-                    } catch (SQLiteException ex) {
-                        ex.printStackTrace();
-                        Snackbar.make(mViewPager, R.string.unable_to_proceed, Snackbar.LENGTH_SHORT)
-                                .setAction("Action", null).show();
-                    }
+                    deleteBLETag();
                 }
                 else
                 {
@@ -269,23 +274,10 @@ public class TelescopeActivity extends AppCompatActivity
                             .setAction("Action", null).show();
                 }
             }
-            else if (mViewPager.getCurrentItem()==2)
+            else if (mViewPager.getCurrentItem()==2)    //deletes the group, if the viewpager is showing groups
             {
                 if (mUserSelectedGroup != null) {
-                    try {
-                        telescopeDataBaseAdapter.deleteGroup(mUserSelectedGroup);
-                        mBLEGroups.clear();
-                        mBLEGroups.addAll(telescopeDataBaseAdapter.getAllGroups());
-                        mTagGroupAdapter.notifyDataSetChanged();
-
-                        Snackbar.make(mViewPager, R.string.group_deleted, Snackbar.LENGTH_SHORT)
-                                .setAction("Action", null).show();
-
-                    } catch (SQLiteException ex) {
-                        ex.printStackTrace();
-                        Snackbar.make(mViewPager, R.string.unable_to_proceed, Snackbar.LENGTH_SHORT)
-                                .setAction("Action", null).show();
-                    }
+                    deleteUserGroup();
                 }
                 else
                 {
@@ -295,91 +287,123 @@ public class TelescopeActivity extends AppCompatActivity
             }
 
         }
+
         //Initiating device locating procedure
         if (id == R.id.action_locate) {
             if (mViewPager.getCurrentItem()==1) {
-                if (mUserSelectedBLETag != null) {
-                    //TODO: locate properly
-                    try {
-                        //getting device reference
-                        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mUserSelectedBLETag.getmMACAddress());
-
-                        //trying to connect with the device
-                        device.connectGatt(this, false, mGattCallback);
-                        Snackbar.make(mViewPager, R.string.trying_to_locate_tag, Snackbar.LENGTH_INDEFINITE)
-                                .setAction("Action", null).show();
-
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                        Snackbar.make(mViewPager, R.string.locate_tag_fail, Snackbar.LENGTH_SHORT)
-                                .setAction("Action", null).show();
-                    }
-                }
-                else
-                {
-                    Snackbar.make(mViewPager, R.string.select_tag_first, Snackbar.LENGTH_SHORT)
-                            .setAction("Action", null).show();
-                }
+                locateBLETag();
             }
         }
+
+        //Add Tags/ groups
         if (id== R.id.action_add_tag){
             if (mViewPager.getCurrentItem()==2) {
-                    try {
-
-                        final AlertDialog.Builder alert = new AlertDialog.Builder(this);
-
-                        final EditText edittext = new EditText(this);
-                        alert.setMessage("Enter the new group name");
-                        alert.setTitle("Add group");
-
-                        alert.setView(edittext);
-
-                        alert.setPositiveButton("Yes Option", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                if(!edittext.getText().toString().isEmpty()) {
-                                    telescopeDataBaseAdapter.insertGroup(edittext.getText().toString());
-                                    mBLEGroups.clear();
-                                    mBLEGroups.addAll(telescopeDataBaseAdapter.getAllGroups());
-                                    mTagGroupAdapter.notifyDataSetChanged();
-                                    Snackbar.make(mViewPager, R.string.group_added, Snackbar.LENGTH_SHORT)
-                                            .setAction("Action", null).show();
-                                    dialog.dismiss();
-                                }
-                            }
-                        });
-
-                        alert.setNegativeButton("Cancel Option", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                dialog.dismiss();
-                            }
-                        });
-
-                        alert.show();
-
-
-
-                    } catch (SQLiteException ex) {
-                        ex.printStackTrace();
-                        Snackbar.make(mViewPager, R.string.unable_to_proceed, Snackbar.LENGTH_SHORT)
-                                .setAction("Action", null).show();
-                    }
-
+                // if the user is in group tab, add a new group
+                addBLEGroup();
             }
             else if (mViewPager.getCurrentItem()==1)
             {
+                //if user is in any other tab, take user to the tab where user can add new BLE tag
                 mViewPager.setCurrentItem(0,true);
             }
-
         }
-
-
         return super.onOptionsItemSelected(item);
+    }
+
+    /***
+     * Shows a dialog to add a new group and inserts that into database
+     */
+    private void addBLEGroup() {
+        try {
+
+            final AlertDialog.Builder alert = new AlertDialog.Builder(this);
+
+            //Setting up the dialog
+            final EditText edittext = new EditText(this);
+            alert.setMessage("Enter the new group name");
+            alert.setTitle("Add group");
+            alert.setView(edittext);
+
+            //Setting positive button and its listener for dialog
+            alert.setPositiveButton("Add", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    if(!edittext.getText().toString().isEmpty()) {
+
+                        //Inserting the new group to database
+                        telescopeDataBaseAdapter.insertGroup(edittext.getText().toString());
+                        mBLEGroups.clear();
+
+                        //Populating the new groups on to the screen
+                        mBLEGroups.addAll(telescopeDataBaseAdapter.getAllGroups());
+                        mTagGroupAdapter.notifyDataSetChanged();
+
+                        //Notifing user about newly added group
+                        Snackbar.make(mViewPager, R.string.group_added, Snackbar.LENGTH_SHORT)
+                                .setAction("Action", null).show();
+                        dialog.dismiss();
+                    }
+                }
+            });
+
+            //setting neegative button
+            alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    dialog.dismiss();
+                }
+            });
+            alert.show();
+
+        } catch (SQLiteException ex) {
+            ex.printStackTrace();
+            Snackbar.make(mViewPager, R.string.unable_to_proceed, Snackbar.LENGTH_SHORT)
+                    .setAction("Action", null).show();
+        }
+    }
+
+    /***
+     * Deletes a user group
+     */
+    private void deleteUserGroup() {
+        try {
+            telescopeDataBaseAdapter.deleteGroup(mUserSelectedGroup);
+            mBLEGroups.clear();
+            mBLEGroups.addAll(telescopeDataBaseAdapter.getAllGroups());
+            mTagGroupAdapter.notifyDataSetChanged();
+
+            Snackbar.make(mViewPager, R.string.group_deleted, Snackbar.LENGTH_SHORT)
+                    .setAction("Action", null).show();
+
+        } catch (SQLiteException ex) {
+            ex.printStackTrace();
+            Snackbar.make(mViewPager, R.string.unable_to_proceed, Snackbar.LENGTH_SHORT)
+                    .setAction("Action", null).show();
+        }
+    }
+
+    /***
+     * Deletes a stored BLE tag
+     */
+    private void deleteBLETag() {
+        try {
+            telescopeDataBaseAdapter.deleteTag(mUserSelectedBLETag.getmMACAddress());
+            mBLETags.clear();
+            mBLETags.addAll(telescopeDataBaseAdapter.getAllTags());
+            mBLETagsAdapter.notifyDataSetChanged();
+
+            Snackbar.make(mViewPager, R.string.tag_deleted, Snackbar.LENGTH_SHORT)
+                    .setAction("Action", null).show();
+
+        } catch (SQLiteException ex) {
+            ex.printStackTrace();
+            Snackbar.make(mViewPager, R.string.unable_to_proceed, Snackbar.LENGTH_SHORT)
+                    .setAction("Action", null).show();
+        }
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        stopScan();
+        stopScan();         //Stops any continuing scan
 
         //Closing any existing connection
         if(mConnectedGatt != null)
@@ -394,6 +418,7 @@ public class TelescopeActivity extends AppCompatActivity
         super.onResume();
 
         mViewPager.setCurrentItem(1,true);
+
         /***
          * TODO: handle permission asking properly for BT and GPS
          * Ensure that bluetooth permission is available and
@@ -402,10 +427,11 @@ public class TelescopeActivity extends AppCompatActivity
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             //Bluetooth is disabled
             Log.i(TAG,"Bluetooth is disabled");
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivity(enableBtIntent);
-//            finish();
-            return;
+            Intent intentBtEnabled = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+
+            // implementation as the requestCode parameter.
+            int REQUEST_ENABLE_BT = 1;
+            startActivityForResult(intentBtEnabled, REQUEST_ENABLE_BT);
         }
 
         /*
@@ -419,45 +445,90 @@ public class TelescopeActivity extends AppCompatActivity
         }
     }
 
+    /**
+     * Checking bluetooth status
+     *
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode== 1)
+            if (resultCode == RESULT_CANCELED)
+            {
+                finish();
+            }
+    }
     /*
     * Begin a scan for new BLE devices
     */
-    public void startScan() {
+    public boolean startScan() {
 
-        //Clearing the previous scan result adapter
-        mScannedListAdapter.clear();
+        boolean hasScanStarted= false;
 
-        //Setting scan filter - scan for what
-        ScanFilter scanFilter = new ScanFilter.Builder()
-                //.setServiceUuid(new ParcelUuid(DeviceProfile.TELESCOPE_SERVICE_UUID))
-                .build();
-        ArrayList<ScanFilter> filters = new ArrayList<ScanFilter>();
-        filters.add(scanFilter);
+        //Checking permission-
+        if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-        //Creating scan settings- the mode of scanning
-        ScanSettings settings = new ScanSettings.Builder()
-                .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-                .build();
+            //requesting permission for location
+            ActivityCompat.requestPermissions(this,new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},0);
 
-//        //TODO: delete dummy code that adds dummy tags into list
-//        mScannedBLETags.add(new BLETag("88:FF:DD:11", "Car keys", null, false));
-//        mScannedBLETags.add(new BLETag("45:F8:56:BB", "TV remote", null, false));
-//        mScannedBLETags.add(new BLETag("75:38:24:C1", "Bag", null, false));
-//        mScannedBLETags.add(new BLETag("77:88:99:11", "Wallet", null, false));
-        mScannedListAdapter.notifyDataSetChanged();
+        }
+        else
+        {
+            final LocationManager manager = (LocationManager) getSystemService( Context.LOCATION_SERVICE );
 
-        /***
-         * Starting the scan,
-         * passing the mScanCallback that handles events of scan results
-         */
-        mBluetoothAdapter.getBluetoothLeScanner().startScan(filters, settings, mScanCallback);
+            if ( manager.isProviderEnabled( LocationManager.GPS_PROVIDER ) ) {
+
+                //Clearing the previous scan result adapter
+                mScannedListAdapter.clear();
+
+                //Setting scan filter - scan for what
+                ScanFilter scanFilter = new ScanFilter.Builder()
+                        //.setServiceUuid(new ParcelUuid(DeviceProfile.TELESCOPE_SERVICE_UUID))
+                        .build();
+                ArrayList<ScanFilter> filters = new ArrayList<ScanFilter>();
+                filters.add(scanFilter);
+
+                //Creating scan settings- the mode of scanning
+                ScanSettings settings = new ScanSettings.Builder()
+                        .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
+                        .build();
+
+
+                mScannedListAdapter.notifyDataSetChanged();
+
+                /***
+                 * Starting the scan,
+                 * passing the mScanCallback that handles events of scan results
+                 */
+                mBluetoothAdapter.getBluetoothLeScanner().startScan(filters, settings, mScanCallback);
+
+                hasScanStarted= true;
+
+            }
+            else
+            {
+                //permission granted as false
+                Toast.makeText(this, "Location is not enabled, Please enable location to start scanning", Toast.LENGTH_SHORT).show();
+                hasScanStarted= false;
+
+            }
+
+        }
+
+        return hasScanStarted;
     }
 
     /*
      * Terminate any active scans
      */
     public void stopScan() {
-        mBluetoothAdapter.getBluetoothLeScanner().stopScan(mScanCallback);
+        if(mBluetoothAdapter != null && mBluetoothAdapter.getBluetoothLeScanner() != null)
+            mBluetoothAdapter.getBluetoothLeScanner().stopScan(mScanCallback);
     }
 
     private void triggerBuzzer(BluetoothGatt locatingGatt) {
@@ -678,7 +749,6 @@ public class TelescopeActivity extends AppCompatActivity
     public void onGroupItemSelection(String groupName) {
         mUserSelectedGroup= groupName;
     }
-
 
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
