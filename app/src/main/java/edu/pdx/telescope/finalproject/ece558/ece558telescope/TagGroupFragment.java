@@ -70,7 +70,6 @@ public class TagGroupFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnTagGroupInteractionListener {
-        // TODO: Update argument type and name
         void onGroupItemSelection(String groupname);
     }
 }

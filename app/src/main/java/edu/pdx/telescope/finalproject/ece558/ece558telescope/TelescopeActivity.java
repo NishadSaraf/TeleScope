@@ -115,7 +115,6 @@ public class TelescopeActivity extends AppCompatActivity
         return mBLETags;
     }
 
-    //TODO: Dummy method, remove after testing
     private void populateTagForTesting()
     {
         for (int i=0; i< 10;i++)
@@ -176,8 +175,6 @@ public class TelescopeActivity extends AppCompatActivity
             }
         });
 
-        //TODO: dummy method for testing
-        //populateTagForTesting();
 
         // Creates object for LoginDataBaseAdapter to gain access to database
         telescopeDataBaseAdapter = new TelescopeDatabaseAdapter(this);
@@ -221,7 +218,6 @@ public class TelescopeActivity extends AppCompatActivity
 
     private void locateBLETag() {
         if (mUserSelectedBLETag != null) {
-            //TODO: locate properly
             try {
                 //getting device reference
                 BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mUserSelectedBLETag.getmMACAddress());
@@ -420,7 +416,6 @@ public class TelescopeActivity extends AppCompatActivity
         mViewPager.setCurrentItem(1,true);
 
         /***
-         * TODO: handle permission asking properly for BT and GPS
          * Ensure that bluetooth permission is available and
          * bluetooth is turned on otherwise, prompt user to do so
          */
@@ -685,9 +680,6 @@ public class TelescopeActivity extends AppCompatActivity
 
             boolean isalreadyadded=false;
 
-            //Add it to the collection
-            //TODO: give proper bool for is tag already saved
-            //mDevices.put(device.hashCode(), device);
 
             //Checking whether the device has been added already
             for (BLETag tag: mScannedBLETags)
@@ -711,20 +703,17 @@ public class TelescopeActivity extends AppCompatActivity
         mUserSelectedBLETag = item;
     }
 
-    //TODO: Make onTagAdded() meaningful
-    //TODO: change the parameter of onTagAdded()
     @Override
     public void onTagAdded(BLETag selectedtag) {
 
         try
         {
-            //TODO: implement what should be done after tag addition request
+
             telescopeDataBaseAdapter.insertNewTag(selectedtag);
             mBLETags.clear();
             mBLETags.addAll( telescopeDataBaseAdapter.getAllTags());
             mBLETagsAdapter.notifyDataSetChanged();
 
-            //TODO: no need repopulate groups if groups exist by default
             mBLEGroups.clear();
             mBLEGroups.addAll(telescopeDataBaseAdapter.getAllGroups());
             mTagGroupAdapter.notifyDataSetChanged();
@@ -765,7 +754,6 @@ public class TelescopeActivity extends AppCompatActivity
 
             switch (position)
             {
-                //TODO: instantiate fragments accordingly
                 case 0: return new AddTagFragment();
                 case 1: return new MyTagsFragment();
                 case 2: return  new TagGroupFragment();

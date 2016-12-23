@@ -30,8 +30,6 @@
     <string name="select_group_first">Select a group first</string>
     <string name="tag_buzzing">Your tag is buzzing</string>
     <string name="tag_added_success">Tag has been added successfully</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="tag_found">The tag has been located, initiating buzz</string>
     <string name="trying_to_locate_tag">Please wait while the tag is being located</string>

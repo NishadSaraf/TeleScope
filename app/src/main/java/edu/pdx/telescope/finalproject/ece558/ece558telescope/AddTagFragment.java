@@ -26,7 +26,6 @@ import java.util.ArrayList;
  * create an instance of this fragment.
  */
 public class AddTagFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
 
     private boolean isScanning=false;
 
@@ -113,7 +112,6 @@ public class AddTagFragment extends Fragment {
                     //Fetching tag name given by user
                     String userSelectedTagName = mTagNameText.getText().toString();
 
-                    //TODO: remove dummy code to add category
                     mSelectedTag.setmGroup("General");
                     //Takes the user given name only if it is valid
                     if (!userSelectedTagName.isEmpty()) {
@@ -156,7 +154,7 @@ public class AddTagFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface onAddTagListener {
-        // TODO: Update argument type and name
+
         void onTagAdded(BLETag selectedtag);
     }
 
